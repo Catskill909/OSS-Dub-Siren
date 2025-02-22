@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Dub Siren</title>
+    <style>
+        body {
+            background: #1a1a1a;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .dub-siren {
+            background: linear-gradient(145deg, #2a2a2a, #333);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            width: 90%;
+            max-width: 800px;
+            border: 2px solid #444;
+        }
+
+        .device-header {
+            text-align: center;
+            background: #000;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border: 1px solid #00ff00;
+        }
+
+        h1 {
+            font-family: 'Courier New', monospace;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin: 0;
+            text-shadow: 0 0 10px rgba(0,255,0,0.5);
+        }
+
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .control-group {
+            background: #222;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #444;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+
+        .knob-container {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .knob {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(145deg, #333, #222);
+            border-radius: 50%;
+            position: relative;
+            margin: 0 auto 10px;
+            border: 2px solid #444;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            cursor: pointer;
+        }
+
+        .knob::after {
+            content: '';
+            position: absolute;
+            width: 4px;
+            height: 40%;
+            background: #00ff00;
+            top: 10%;
+            left: 50%;
+            transform-origin: bottom;
+            transform: translateX(-50%);
+        }
+
+        .knob-label {
+            color: #00ff00;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+
+        .knob-value {
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8em;
+            background: #000;
+            padding: 2px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .pads-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .pad {
+            background: linear-gradient(145deg, #333, #222);
+            border: 2px solid #444;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.1s;
+            box-shadow: 0 4px 0 #111;
+        }
+
+        .pad:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .pad-label {
+            color: #00ff00;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 8px;
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #00ff00;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="dub-siren">
+        <div class="device-header">
+            <h1>Digital Dub Siren</h1>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <select id="waveform">
+                    <option value="sine">Sine Wave</option>
+                    <option value="square">Square Wave</option>
+                    <option value="sawtooth">Sawtooth Wave</option>
+                    <option value="triangle">Triangle Wave</option>
+                </select>
+
+                <div class="knob-container">
+                    <div class="knob" id="frequencyKnob"></div>
+                    <div class="knob-label">Frequency</div>
+                    <div class="knob-value" id="freqValue">440 Hz</div>
+                    <input type="range" id="frequency" min="20" max="2000" value="440" style="display: none;">
+                </div>
+
+                <div class="knob-container">
+                    <div class="knob" id="modSpeedKnob"></div>
+                    <div class="knob-label">Mod Speed</div>
+                    <div class="knob-value" id="modSpeedValue">1.0</div>
+                    <input type="range" id="modSpeed" min="0" max="10" step="0.1" value="1" style="display: none;">
+                </div>
+            </div>
+
+            <div class="control-group">
+                <div class="knob-container">
+                    <div class="knob" id="delayTimeKnob"></div>
+                    <div class="knob-label">Delay Time</div>
+                    <div class="knob-value" id="delayTimeValue">0.5s</div>
+                    <input type="range" id="delayTime" min="0" max="1" step="0.01" value="0.5" style="display: none;">
+                </div>
+
+                <div class="knob-container">
+                    <div class="knob" id="feedbackKnob"></div>
+                    <div class="knob-label">Feedback</div>
+                    <div class="knob-value" id="feedbackValue">0.3</div>
+                    <input type="range" id="feedback" min="0" max="0.9" step="0.1" value="0.3" style="display: none;">
+                </div>
+
+                <div class="knob-container">
+                    <div class="knob" id="volumeKnob"></div>
+                    <div class="knob-label">Volume</div>
+                    <div class="knob-value" id="volumeValue">0.5</div>
+                    <input type="range" id="volume" min="0" max="1" step="0.01" value="0.5" style="display: none;">
+                </div>
+            </div>
+        </div>
+
+        <div class="pads-container">
+            <div class="pad" id="pad1">
+                <div class="pad-label">High Siren</div>
+            </div>
+            <div class="pad" id="pad2">
+                <div class="pad-label">Low Siren</div>
+            </div>
+            <div class="pad" id="pad3">
+                <div class="pad-label">Fast Mod</div>
+            </div>
+            <div class="pad" id="pad4">
+                <div class="pad-label">Echo Dub</div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
