@@ -235,36 +235,35 @@ function setupAudio() {
             console.log('Audio context created:', audioContext.state);
         }
 
-        oscillator = audioContext.createOscillator();
-        gainNode = audioContext.createGain();
-        delayNode = audioContext.createDelay();
-        feedbackNode = audioContext.createGain();
+    oscillator = audioContext.createOscillator();
+    gainNode = audioContext.createGain();
+    delayNode = audioContext.createDelay();
+    feedbackNode = audioContext.createGain();
 
-        // Set initial values from UI controls
-        const waveform = document.getElementById('waveform').value;
-        const frequency = parseFloat(document.getElementById('frequency').value) || 440;
-        const volume = parseFloat(document.getElementById('volume').value) || 0.5;
-        const delayTime = parseFloat(document.getElementById('delayTime').value) || 0;
-        const feedback = parseFloat(document.getElementById('feedback').value) || 0;
+    // Set initial values from UI controls
+    const waveform = document.getElementById('waveform').value;
+    const frequency = parseFloat(document.getElementById('frequency').value) || 440;
+    const volume = parseFloat(document.getElementById('volume').value) || 0.5;
+    const delayTime = parseFloat(document.getElementById('delayTime').value) || 0;
+    const feedback = parseFloat(document.getElementById('feedback').value) || 0;
 
-        oscillator.type = waveform;
-        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-        gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
-        delayNode.delayTime.setValueAtTime(delayTime, audioContext.currentTime);
-        feedbackNode.gain.setValueAtTime(feedback, audioContext.currentTime);
+    oscillator.type = waveform;
+    oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(volume, audioContext.currentTime);
+    delayNode.delayTime.setValueAtTime(delayTime, audioContext.currentTime);
+    feedbackNode.gain.setValueAtTime(feedback, audioContext.currentTime);
 
-        // Connect audio nodes
-        oscillator.connect(gainNode);
-        gainNode.connect(delayNode);
-        delayNode.connect(feedbackNode);
-        feedbackNode.connect(delayNode);
-        gainNode.connect(audioContext.destination);
-        delayNode.connect(audioContext.destination);
+    // Connect audio nodes
+    oscillator.connect(gainNode);
+    gainNode.connect(delayNode);
+    delayNode.connect(feedbackNode);
+    feedbackNode.connect(delayNode);
+    gainNode.connect(audioContext.destination);
+    delayNode.connect(audioContext.destination);
 
-        oscillator.start();
-        // Remove this line as we're calling it on page load now
-        // setupKnobControls();
-        console.log('Audio setup complete - Oscillator started');
+    oscillator.start();
+    setupKnobControls();
+    console.log('Audio setup complete - Oscillator started');
     } catch (error) {
         console.error('Error in setupAudio:', error);
     }
@@ -278,54 +277,23 @@ function setupKnobControls() {
     setupKnob('volume', 0, 1);
 }
 
-// Add this at the beginning of the file, after the existing variable declarations
-document.addEventListener('DOMContentLoaded', () => {
-    setupKnobControls();
-});
-
-// Modify the setupKnob function
 function setupKnob(id, min, max) {
     const knob = document.getElementById(`${id}Knob`);
     const input = document.getElementById(id);
-    const valueDisplay = document.getElementById(`${id}Value`);
-
-    if (!knob || !input || !valueDisplay) {
-        console.error(`Required elements not found for knob ${id}`);
-        return;
-    }
-
     let isDragging = false;
     let startY;
     let startValue;
 
-    // Set correct initial values and rotation
-    let initialValue;
-    switch(id) {
-        case 'frequency':
-            initialValue = 440;
-            valueDisplay.textContent = '440 Hz';
-            break;
-        case 'modSpeed':
-            initialValue = 1.0;
-            valueDisplay.textContent = '1.0';
-            break;
-        case 'delayTime':
-            initialValue = 0.5;
-            valueDisplay.textContent = '0.5s';
-            break;
-        case 'feedback':
-            initialValue = 0.3;
-            valueDisplay.textContent = '0.3';
-            break;
-        case 'volume':
-            initialValue = 0.5;
-            valueDisplay.textContent = '0.5';
-            break;
-    }
-    
-    input.value = initialValue;
-    const rotationDegrees = ((initialValue - min) / (max - min) * 270) - 135;
-    knob.style.transform = `rotate(${rotationDegrees}deg)`;
+    knob.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startY = e.clientY;
+        startValue = parseFloat(input.value);
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+            document.removeEventListener('mousemove', handleMouseMove);
+        });
+    });
 
     function handleMouseMove(e) {
         if (!isDragging) return;
@@ -333,38 +301,10 @@ function setupKnob(id, min, max) {
         const range = max - min;
         const newValue = startValue + (deltaY / 100) * range;
         const clampedValue = Math.max(min, Math.min(max, newValue));
-        
-        // Update input value and knob rotation
         input.value = clampedValue;
-        knob.style.transform = `rotate(${(clampedValue - min) / (max - min) * 270 - 135}deg)`;
-        
-        // Update display value
-        if (id === 'frequency') {
-            valueDisplay.textContent = Math.round(clampedValue) + ' Hz';
-        } else if (id === 'delayTime') {
-            valueDisplay.textContent = clampedValue.toFixed(2) + 's';
-        } else {
-            valueDisplay.textContent = clampedValue.toFixed(1);
-        }
-        
-        // Trigger input event for audio parameter updates
         input.dispatchEvent(new Event('input'));
+        knob.style.transform = `rotate(${(clampedValue - min) / (max - min) * 270 - 135}deg)`;
     }
-
-    function handleMouseUp() {
-        isDragging = false;
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('mouseup', handleMouseUp);
-    }
-
-    knob.addEventListener('mousedown', (e) => {
-        isDragging = true;
-        startY = e.clientY;
-        startValue = parseFloat(input.value);
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        e.preventDefault(); // Prevent text selection while dragging
-    });
 }
 
 function playHighSiren() {
