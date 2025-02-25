@@ -191,17 +191,12 @@ function stopSound() {
 
 function initializePad(padId, soundFunction) {
     const pad = document.getElementById(padId);
+
+    // Remove old event listeners to prevent duplicates
+    pad.removeEventListener('mousedown', soundFunction);
+
     pad.addEventListener('mousedown', () => {
         if (audioContext) {
-            audioContext.resume().then(() => {
-                setupAudio();
-                soundFunction();
-                currentPad = padId;
-                document.getElementById(padId).style.backgroundColor = '#004400';
-                isPlaying = true;
-            });
-        } else {
-            audioContext = new (window.AudioContext || window.webkitAudioContext)();
             audioContext.resume().then(() => {
                 setupAudio();
                 soundFunction();
